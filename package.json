@@ -1,0 +1,25 @@
+{
+  "name": "promsie",
+  "version": "1.0.0",
+  "description": "Implememtation of Promise/A+",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xroah/promise.git"
+  },
+  "author": "xroah",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/xroah/promise/issues"
+  },
+  "homepage": "https://github.com/xroah/promise#readme",
+  "devDependencies": {
+    "i": "^0.3.6",
+    "jasmine": "^3.5.0",
+    "jasmine-core": "^3.5.0",
+    "jasmine-spec-reporter": "^5.0.2"
+  }
+}
