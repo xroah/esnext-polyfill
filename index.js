@@ -115,10 +115,15 @@ export default class P {
             ) return;
 
             def(this, "status", REJECTED);
-
             setTimeout(
                 () => {
-                    this.rejectedCb.forEach(r => r(reason));
+                    if (this.rejectedCb.length) {
+                        this.rejectedCb.forEach(r => r(reason));
+                    } else if (this.caughtCb.length) {
+                        this.caughtCb.forEach(r => r(reason));
+                    } else {
+                        console.error("Uncaught promise");
+                    }
                 }
             );;
         };
@@ -129,6 +134,7 @@ export default class P {
 
         this.fulfilledCb = [];
         this.rejectedCb = [];
+        this.caughtCb = [];
         this.status = PENDING;
 
         try {
@@ -177,6 +183,24 @@ export default class P {
 
             this.fulfilledCb.push(_onFulfilled);
             this.rejectedCb.push(_onRejected);
+        });
+    }
+
+    catch(onRejected) {
+        return new P((resolve, reject) => {
+            const _onRejected = r => {
+                if (typeof onRejected !== "function") {
+                    return reject(r);
+                }
+
+                try {
+                    resolve(onRejected(r));
+                } catch (error) {
+                    reject(error);
+                }
+            };
+
+            this.caughtCb.push(_onRejected);
         });
     }
 }
