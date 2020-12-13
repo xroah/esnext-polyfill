@@ -1,2 +1,2 @@
-# promise
-Implementation of Promise/A+
+# About
+Implementation of esnext features
