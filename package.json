@@ -1,23 +1,28 @@
 {
-  "name": "promsie",
+  "name": "esnext-polyfill",
   "version": "1.0.0",
-  "description": "Implememtation of Promise/A+",
+  "description": "Polyfill of es-next",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/xroah/promise.git"
+    "url": "git+https://github.com/xroah/esnext-polyfill.git"
   },
   "author": "xroah",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/xroah/promise/issues"
+    "url": "https://github.com/xroah/esnext-polyfill/issues"
   },
-  "homepage": "https://github.com/xroah/promise#readme",
+  "files": [
+    "lib",
+    "index.js"
+  ],
+  "homepage": "https://github.com/xroah/esnext-polyfill#readme",
   "devDependencies": {
     "jasmine": "^3.6.3",
-    "jasmine-spec-reporter": "^6.0.0"
+    "jasmine-spec-reporter": "^6.0.0",
+    "rollup": "^2.34.2"
   }
 }
