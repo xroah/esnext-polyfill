@@ -11,6 +11,7 @@ function resolve(value: any, _this: any) {
         */
     def(_this, "__status", FULFILLED)
     def(_this, "__result", value)
+
     setTimeout(function callFulfilledCallback() {
         _this.__fulfilledCallbacks.forEach((fulfilledCallback: Function) => {
             fulfilledCallback(value)
@@ -20,7 +21,7 @@ function resolve(value: any, _this: any) {
     })
 }
 
-function resolvePromise(value: any, _this: any) {
+function resolvePromise(value: any, _this: Promise) {
     if (_this.__resolveOrRejectedCalled) {
         return
     }
@@ -53,7 +54,10 @@ function resolvePromise(value: any, _this: any) {
                 rejectPromise(value.__result, _this)
                 break
             default:
-                value.then(resolvePromise, rejectPromise)
+                value.then(
+                    (v: any) => resolve(v, _this),
+                    (r: any) => rejectPromise(r, _this)
+                )
         }
     } else if (isPlainObject(value) || typeof value === "function") {
         /**
@@ -100,7 +104,7 @@ function resolvePromise(value: any, _this: any) {
     }
 }
 
-function rejectPromise(reason: any, _this: any) {
+function rejectPromise(reason: any, _this: Promise) {
     if (_this.__resolveOrRejectedCalled) {
         return
     }
@@ -110,6 +114,7 @@ function rejectPromise(reason: any, _this: any) {
      * must not transition to any other state.
     */
     def(_this, "__result", reason)
+    
     setTimeout(function callRejectedCallback() {
         if (_this.__rejectedCallbacks.length) {
             _this.__rejectedCallbacks.forEach((rejectedCallback: Function) => {
@@ -123,7 +128,7 @@ function rejectPromise(reason: any, _this: any) {
     })
 }
 
-function callFinallyCallbacks(_this: any) {
+function callFinallyCallbacks(_this: Promise) {
     _this.__finallyCallbacks.forEach((finallyCallback: Function) => {
         finallyCallback()
     })
@@ -186,7 +191,7 @@ class Promise {
     then(onFulfilled?: Function, onRejected?: Function) {
         const _this = this
 
-        return new Promise(function executor(resolve: Function, reject: Function) {
+        return new Promise((resolve: Function, reject: Function) => {
             const onFulfilledWrapper = (value: any) => {
                 let val
 
