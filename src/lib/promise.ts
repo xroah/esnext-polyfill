@@ -4,16 +4,16 @@ const PENDING = "pending"
 const FULFILLED = "fulfilled"
 const REJECTED = "rejected"
 
-function resolve(value: any, _this: any) {
+function resolve(value: any, _this: Promise) {
     /**
          * When fulfilled or rejected, a promise:
          * must not transition to any other state.
         */
-    def(_this, "__status", FULFILLED)
-    def(_this, "__result", value)
+    def(_this, "__status__", FULFILLED)
+    def(_this, "__result__", value)
 
     setTimeout(function callFulfilledCallback() {
-        _this.__fulfilledCallbacks.forEach((fulfilledCallback: Function) => {
+        _this.__fulfilledCallbacks__.forEach((fulfilledCallback: Function) => {
             fulfilledCallback(value)
         })
 
@@ -22,20 +22,22 @@ function resolve(value: any, _this: any) {
 }
 
 function resolvePromise(value: any, _this: Promise) {
-    if (_this.__resolveOrRejectedCalled) {
+    if (_this.__resolveOrRejectedCalled__) {
         return
     }
 
-    def(_this, "__resolveOrRejectedCalled", true)
+    const _resolve = (v: any) => resolve(v, _this)
+    const _reject = (r: any) => rejectPromise(r, _this)
+
+    def(_this, "__resolveOrRejectedCalled__", true)
 
     /**
      * If promise and value refer to the same object,
      * reject promise with a TypeError as the reason.
      * */
     if (value === _this) {
-        return rejectPromise(
-            new TypeError("The value can not be same as the promise instance"),
-            _this
+        return _reject(
+            new TypeError("The value can not be same as the promise instance")
         );
     }
 
@@ -48,16 +50,13 @@ function resolvePromise(value: any, _this: Promise) {
     if (value instanceof Promise) {
         switch (status) {
             case FULFILLED:
-                resolve(value.__result, _this)
+                _resolve(value.__result__)
                 break
             case REJECTED:
-                rejectPromise(value.__result, _this)
+                _reject(value.__result__)
                 break
             default:
-                value.then(
-                    (v: any) => resolve(v, _this),
-                    (r: any) => rejectPromise(r, _this)
-                )
+                value.then(_resolve, _reject)
         }
     } else if (isPlainObject(value) || typeof value === "function") {
         /**
@@ -82,30 +81,30 @@ function resolvePromise(value: any, _this: Promise) {
         try {
             then = value.then
         } catch (err) {
-            return rejectPromise(err, _this)
+            return _reject(err)
         }
 
         if (typeof then === "function") {
             try {
-                then.call(value, resolvePromise, rejectPromise)
+                then.call(value, _resolve, _reject)
             } catch (err) {
-                if (!_this.__resolveOrRejectedCalled) {
-                    rejectPromise(err, _this)
+                if (!_this.__resolveOrRejectedCalled__) {
+                    _reject(err)
                 }
             }
         } else {
-            resolve(value, _this)
+            _resolve(value)
         }
     } else {
         /**
          * If value is not an object or function, fulfill promise with value
          */
-        resolve(value, _this)
+        _resolve(value)
     }
 }
 
 function rejectPromise(reason: any, _this: Promise) {
-    if (_this.__resolveOrRejectedCalled) {
+    if (_this.__resolveOrRejectedCalled__) {
         return
     }
 
@@ -113,14 +112,14 @@ function rejectPromise(reason: any, _this: Promise) {
      * When fulfilled or rejected, a promise:
      * must not transition to any other state.
     */
-    def(_this, "__result", reason)
-    
+    def(_this, "__result__", reason)
+
     setTimeout(function callRejectedCallback() {
-        if (_this.__rejectedCallbacks.length) {
-            _this.__rejectedCallbacks.forEach((rejectedCallback: Function) => {
+        if (_this.__rejectedCallbacks__.length) {
+            _this.__rejectedCallbacks__.forEach((rejectedCallback: Function) => {
                 rejectedCallback(reason)
             })
-        } else if (!_this.__finallyCallbacks.length) {//in case console error multiple times
+        } else if (!_this.__finallyCallbacks__.length) {//in case console error multiple times
             console.error("Uncaught promise", reason)
         }
 
@@ -129,18 +128,18 @@ function rejectPromise(reason: any, _this: Promise) {
 }
 
 function callFinallyCallbacks(_this: Promise) {
-    _this.__finallyCallbacks.forEach((finallyCallback: Function) => {
+    _this.__finallyCallbacks__.forEach((finallyCallback: Function) => {
         finallyCallback()
     })
 }
 
 class Promise {
-    __fulfilledCallbacks: Function[] = []
-    __rejectedCallbacks: Function[] = []
-    __finallyCallbacks: Function[] = []
-    __result: any
-    __status = PENDING
-    __resolveOrRejectedCalled = false
+    __fulfilledCallbacks__: Function[] = []
+    __rejectedCallbacks__: Function[] = []
+    __finallyCallbacks__: Function[] = []
+    __result__: any
+    __status__ = PENDING
+    __resolveOrRejectedCalled__ = false
 
     constructor(executor: Function) {
         const _resolve = (value: any) => resolvePromise(value, this)
@@ -149,7 +148,7 @@ class Promise {
         try {
             executor(_resolve, _reject)
         } catch (err) {
-            if (!this.__resolveOrRejectedCalled) {
+            if (!this.__resolveOrRejectedCalled__) {
                 _reject(err)
             }
         }
@@ -223,8 +222,8 @@ class Promise {
                 reject(reason)
             }
 
-            _this.__fulfilledCallbacks.push(onFulfilledWrapper)
-            _this.__rejectedCallbacks.push(onRejectedWrapper)
+            _this.__fulfilledCallbacks__.push(onFulfilledWrapper)
+            _this.__rejectedCallbacks__.push(onRejectedWrapper)
         })
     }
 
@@ -249,14 +248,14 @@ class Promise {
                     return resolve(val)
                 }
 
-                if (_this.__status === FULFILLED) {
-                    resolve(_this.__result)
-                } else if (_this.__status === REJECTED) {
-                    reject(_this.__result)
+                if (_this.__status__ === FULFILLED) {
+                    resolve(_this.__result__)
+                } else if (_this.__status__ === REJECTED) {
+                    reject(_this.__result__)
                 }
             }
 
-            _this.__finallyCallbacks.push(finallyCallbackWrapper)
+            _this.__finallyCallbacks__.push(finallyCallbackWrapper)
         })
     }
 }
