@@ -1,8 +1,8 @@
 import {def, isPlainObject} from "../utils"
 
-const PENDING = "pending"
-const FULFILLED = "fulfilled"
-const REJECTED = "rejected"
+export const PENDING = "pending"
+export const FULFILLED = "fulfilled"
+export const REJECTED = "rejected"
 
 function resolve(value: any, _this: Promise) {
     /**
@@ -113,7 +113,9 @@ function rejectPromise(reason: any, _this: Promise) {
      * must not transition to any other state.
     */
     def(_this, "__result__", reason)
-
+    def(_this, "__status__", REJECTED)
+    def(_this, "__resolveOrRejectedCalled__", true)
+    
     setTimeout(function callRejectedCallback() {
         if (_this.__rejectedCallbacks__.length) {
             _this.__rejectedCallbacks__.forEach((rejectedCallback: Function) => {
@@ -221,7 +223,7 @@ class Promise {
 
                 reject(reason)
             }
-
+            
             _this.__fulfilledCallbacks__.push(onFulfilledWrapper)
             _this.__rejectedCallbacks__.push(onRejectedWrapper)
         })
@@ -259,3 +261,5 @@ class Promise {
         })
     }
 }
+
+export default Promise
