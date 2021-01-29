@@ -7,9 +7,9 @@ describe("Promise", () => {
             throw error
         })
         p.catch((err: any) => {
-            expect(err === error).toBeTrue()
-            expect(p.__result__ === error).toBeTrue()
-            expect(p.__status__ === REJECTED).toBeTrue()
+            expect(err).toBe(error)
+            expect(p.__result__).toBe(error)
+            expect(p.__status__).toBe(REJECTED)
 
             done()
         })

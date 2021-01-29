@@ -11,6 +11,7 @@ function resolve(value: any, _this: Promise) {
         */
     def(_this, "__status__", FULFILLED)
     def(_this, "__result__", value)
+    def(_this, "__resolveOrRejectedCalled__", true)
 
     setTimeout(function callFulfilledCallback() {
         _this.__fulfilledCallbacks__.forEach((fulfilledCallback: Function) => {
@@ -29,7 +30,6 @@ function resolvePromise(value: any, _this: Promise) {
     const _resolve = (v: any) => resolve(v, _this)
     const _reject = (r: any) => rejectPromise(r, _this)
 
-    def(_this, "__resolveOrRejectedCalled__", true)
 
     /**
      * If promise and value refer to the same object,
