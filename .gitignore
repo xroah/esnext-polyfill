@@ -3,3 +3,4 @@
 .history
 coverage
 .nyc_output
+/lib

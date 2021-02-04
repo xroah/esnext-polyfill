@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "ts-node tests/index",
-    "coverage": "nyc npm test"
+    "coverage": "nyc npm test",
+    "build": "tsc"
   },
   "repository": {
     "type": "git",
