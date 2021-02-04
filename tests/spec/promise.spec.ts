@@ -1,4 +1,4 @@
-import PromisePolyfill, {REJECTED} from "../../src/lib/promise"
+import PromisePolyfill, {REJECTED} from "../../src/polyfill/promise"
 
 describe("Promise", () => {
     it("Should throw an error", done => {
